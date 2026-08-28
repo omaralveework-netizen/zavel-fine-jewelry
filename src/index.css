@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-emerald-900 text-gold-100 font-sans font-light antialiased;
+  }
+  ::selection {
+    @apply bg-gold-400 text-emerald-950;
+  }
+  :focus-visible {
+    outline: 1.5px solid #d4af37;
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  .bg-emerald-noise {
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(212, 175, 55, 0.07), transparent 45%),
+      radial-gradient(ellipse at 100% 100%, rgba(212, 175, 55, 0.05), transparent 55%),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, #0b2b20 0%, #071f17 100%);
+  }
+  .text-gold-foil {
+    background: linear-gradient(115deg, #9c7a2e 10%, #f3dfa0 35%, #e5c158 50%, #d4af37 65%, #9c7a2e 90%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .animate-shimmer-text {
+    animation: shimmer 5s linear infinite;
+  }
+  .divider-flourish {
+    @apply flex items-center gap-3 text-gold-400;
+  }
+  .divider-flourish::before,
+  .divider-flourish::after {
+    content: '';
+    @apply h-px flex-1;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    opacity: 0.55;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
