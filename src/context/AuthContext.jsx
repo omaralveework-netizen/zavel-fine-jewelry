@@ -5,7 +5,22 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const fetchProfile = async (userId) => {
+    if (!userId) {
+      setProfile(null)
+      return
+    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
+      
+    setProfile(data)
+  }
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -13,13 +28,22 @@ export function AuthProvider({ children }) {
       return
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session)
+      if (data.session?.user) {
+        await fetchProfile(data.session.user.id)
+      }
       setLoading(false)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession)
+      if (newSession?.user) {
+        await fetchProfile(newSession.user.id)
+      } else {
+        setProfile(null)
+      }
+      setLoading(false)
     })
 
     return () => listener.subscription.unsubscribe()
@@ -30,7 +54,10 @@ export function AuthProvider({ children }) {
       return { error: { message: 'Supabase is not configured. Add your project keys first — see .env.example.' } }
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (!error) setSession(data.session)
+    if (!error && data.session) {
+      setSession(data.session)
+      await fetchProfile(data.session.user.id)
+    }
     return { error }
   }
 
@@ -38,10 +65,11 @@ export function AuthProvider({ children }) {
     if (!isSupabaseConfigured) return
     await supabase.auth.signOut()
     setSession(null)
+    setProfile(null)
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signOut, isSupabaseConfigured }}>
+    <AuthContext.Provider value={{ session, profile, user: session?.user, isAdmin: profile?.role === 'admin', loading, signIn, signOut, isSupabaseConfigured }}>
       {children}
     </AuthContext.Provider>
   )
