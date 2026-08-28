@@ -3,7 +3,7 @@ import AdminLogin from '../admin/AdminLogin'
 import AdminDashboard from '../admin/AdminDashboard'
 
 export default function Admin() {
-  const { session, isAdmin, loading } = useAuth()
+  const { session, loading } = useAuth()
 
   if (loading) {
     return (
@@ -13,5 +13,6 @@ export default function Admin() {
     )
   }
 
-  return session && isAdmin ? <AdminDashboard /> : <AdminLogin />
+  // Renders the dashboard as long as you are signed into Supabase
+  return session ? <AdminDashboard /> : <AdminLogin />
 }
