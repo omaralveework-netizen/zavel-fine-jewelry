@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function AdminLogin() {
   const { signIn } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -12,9 +14,16 @@ export default function AdminLogin() {
     e.preventDefault()
     setSubmitting(true)
     setError('')
+    
     const { error } = await signIn(email, password)
-    if (error) setError(error.message)
-    setSubmitting(false)
+    
+    if (error) {
+      setError(error.message)
+      setSubmitting(false)
+    } else {
+      // Redirect to your admin dashboard page
+      navigate('/admin')
+    }
   }
 
   return (
