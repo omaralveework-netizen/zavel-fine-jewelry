@@ -31,7 +31,6 @@ export default function ProductFormModal({ open, initialProduct, onClose, onSave
 
   if (!open) return null
 
-  // Upload picture directly from your device to Supabase Storage
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -46,7 +45,7 @@ export default function ProductFormModal({ open, initialProduct, onClose, onSave
       .upload(filePath, file)
 
     if (uploadError) {
-      alert(`Upload error: ${uploadError.message}. Make sure the 'product-images' bucket exists in Supabase.`)
+      alert(`Upload error: ${uploadError.message}`)
       setUploading(false)
       return
     }
@@ -69,14 +68,23 @@ export default function ProductFormModal({ open, initialProduct, onClose, onSave
       image_url: imageUrl,
     }
 
+    let error = null
+
     if (initialProduct?.id) {
-      await supabase.from('products').update(payload).eq('id', initialProduct.id)
+      const res = await supabase.from('products').update(payload).eq('id', initialProduct.id)
+      error = res.error
     } else {
-      await supabase.from('products').insert([payload])
+      const res = await supabase.from('products').insert([payload])
+      error = res.error
     }
 
     setSaving(false)
-    onSaved()
+
+    if (error) {
+      alert(`Failed to save product: ${error.message}`)
+    } else {
+      onSaved()
+    }
   }
 
   return (
@@ -134,7 +142,6 @@ export default function ProductFormModal({ open, initialProduct, onClose, onSave
           className="w-full bg-emerald-950 border border-gold-400/25 rounded-sm px-3 py-2 text-sm text-gold-100 outline-none mb-4"
         />
 
-        {/* File Upload Selector */}
         <div className="mb-6 space-y-2">
           <label className="block text-xs uppercase text-gold-100/60">Product Image</label>
           <input
