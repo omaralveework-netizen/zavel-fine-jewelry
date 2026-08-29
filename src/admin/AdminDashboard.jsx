@@ -50,6 +50,19 @@ export default function AdminDashboard() {
     loadOrders()
   }
 
+  const parseItems = (items) => {
+    if (!items) return []
+    if (Array.isArray(items)) return items
+    if (typeof items === 'string') {
+      try {
+        return JSON.parse(items)
+      } catch (e) {
+        return []
+      }
+    }
+    return []
+  }
+
   return (
     <div className="min-h-screen bg-emerald-900 px-6 py-8">
       {/* Header */}
@@ -187,9 +200,19 @@ export default function AdminDashboard() {
             {selectedOrder.items && (
               <div className="mb-4">
                 <h3 className="text-xs uppercase tracking-wide text-gold-300 mb-2">Order Items</h3>
-                <pre className="bg-emerald-950 p-3 rounded text-xs overflow-x-auto text-gold-100/80">
-                  {JSON.stringify(selectedOrder.items, null, 2)}
-                </pre>
+                <div className="bg-emerald-950 rounded p-3 divide-y divide-gold-400/10">
+                  {parseItems(selectedOrder.items).map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center py-2 text-xs text-gold-100">
+                      <div>
+                        <span className="font-medium">{item.name || item.title}</span>
+                        <span className="text-gold-100/50 block">Qty: {item.qty || item.quantity || 1}</span>
+                      </div>
+                      <span className="text-gold-300 font-mono">
+                        ৳{Number((item.price || 0) * (item.qty || item.quantity || 1)).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
